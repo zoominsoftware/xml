@@ -191,3 +191,32 @@ main = hspec $ do
                   ])
               [X.NodeContent "link"]
          in H.parseLBS html @?= doc
+
+    describe "HTML parsing backspace in quoted string" $ do
+      it "empty" $
+          X.parseLBS_ X.def "<foo alt=\"\\\"></foo>" @=?
+          H.parseLBS        "<foo alt=\"\\\"></foo>"
+      it "with char" $
+          X.parseLBS_ X.def "<foo alt=\"\\a\"></foo>" @=?
+          H.parseLBS        "<foo alt=\"\\a\"></foo>"
+      it "with single quote" $
+          X.parseLBS_ X.def "<foo alt=\"\\'a'\"></foo>" @=?
+          H.parseLBS        "<foo alt=\"\\'a'\"></foo>"
+      it "via doc - empty" $
+        let html  = "<foo alt=\"\\\">Hello World</p>"
+            doc   = X.Document (X.Prologue [] Nothing []) root []
+            attrs = Map.fromList [("alt","\\") ]
+            root  = X.Element "foo" attrs [ X.NodeContent "Hello World" ]
+         in H.parseLBS html @?= doc
+      it "via doc - with char" $
+        let html  = "<foo alt=\"\\a\">Hello World</p>"
+            doc   = X.Document (X.Prologue [] Nothing []) root []
+            attrs = Map.fromList [("alt","\\a") ]
+            root  = X.Element "foo" attrs [ X.NodeContent "Hello World" ]
+         in H.parseLBS html @?= doc
+      it "via doc - with single quote" $
+        let html  = "<foo alt=\"\\'a'\">Hello World</p>"
+            doc   = X.Document (X.Prologue [] Nothing []) root []
+            attrs = Map.fromList [("alt","\\'a'") ]
+            root  = X.Element "foo" attrs [ X.NodeContent "Hello World" ]
+         in H.parseLBS html @?= doc

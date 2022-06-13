@@ -45,9 +45,9 @@ data TagType
  - match quoted string, can fail.
  -}
 quoted :: Char -> Parser Text
-quoted q = T.append <$> takeTill (in2 ('\\',q))
-                    <*> ( char q *> pure ""
-                      <|> char '\\' *> atLeast 1 (quoted q) )
+quoted q = T.append <$> takeTill (== q)
+                    <*> ( char q *> pure "" )
+
 
 quotedOr :: Parser Text -> Parser Text
 quotedOr p = maybeP (satisfy (in2 ('"','\''))) >>=
